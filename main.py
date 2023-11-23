@@ -9,7 +9,7 @@ CLIPBOARD_FAILED_MESSAGE = "Current windows is unsupported"
 
 # CONFIG =====================================================================
 openai.api_key = sys.argv[1] # Don't worry you can just use a string here
-OS = 0 # LINUX WINDOWS
+OS = LINUX # LINUX WINDOWS
 GPT_MODEL = "gpt-4"
 PRE_PROMPT = ""
 # ============================================================================
