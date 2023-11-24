@@ -5,14 +5,18 @@ import sys
 
 LINUX = 0
 WINDOWS = 1
-CLIPBOARD_FAILED_MESSAGE = "Current windows is unsupported"
+CLIPBOARD_FAILED_MESSAGE = "ERR Clipboard failed"
 
 # CONFIG =====================================================================
 openai.api_key = sys.argv[1] # Don't worry you can just use a string here
-OS = LINUX # LINUX WINDOWS
+OS = WINDOWS # LINUX WINDOWS
 GPT_MODEL = "gpt-4"
 PRE_PROMPT = ""
 # ============================================================================
+
+if OS == WINDOWS:
+    import win32clipboard
+    from plyer import notification
 
 def getClipboardData():
     # Clipboard input
@@ -23,9 +27,12 @@ def getClipboardData():
         return data.decode('utf-8')  # Decode bytes to string
 
     elif OS == WINDOWS:
-        return CLIPBOARD_FAILED_MESSAGE
+        win32clipboard.OpenClipboard()
+        data = win32clipboard.GetClipboardData()
+        win32clipboard.CloseClipboard()
+        return data
 
-    return "Clipboard is not working rn"
+    return CLIPBOARD_FAILED_MESSAGE
 
 def getGPTResponse(prompt_text:str):
     response = openai.chat.completions.create(
@@ -46,6 +53,17 @@ def sendNotification(text:str):
         p = subprocess.Popen(['xclip', '-selection', 'clipboard'], stdin=subprocess.PIPE)
         p.communicate(input=text.encode('utf-8'))
 
+    elif OS == WINDOWS:
+        win32clipboard.OpenClipboard()
+        win32clipboard.EmptyClipboard()
+        win32clipboard.SetClipboardText(text)
+        win32clipboard.CloseClipboard()
+
+        notification.notify(
+            title = "Davinci",
+            message = text,
+            timeout = 10
+        )
     else:
         print("No clipboard output")
 
